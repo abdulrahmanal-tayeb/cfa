@@ -1,4 +1,4 @@
-# CFA - Create Flutter App 🎉
+# CFA - Create Flutter App
 
 > Created with ❤️ by **AmtCode**
 
