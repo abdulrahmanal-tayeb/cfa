@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./core/utilities.sh
+source ./core/painter.sh
 
 if [[ -z "$CHECKERS_SH_SOURCED" ]]; then
     export CHECKERS_SH_SOURCED=true;
@@ -12,25 +13,33 @@ if [[ -z "$CHECKERS_SH_SOURCED" ]]; then
     }
 
     check_flutter() {
+        paint_title "Checking Flutter SDK..." "$CYAN";
+
         # Check Flutter Existance
         command -v flutter >/dev/null 2>&1 || {
             error 'flutter' not in PATH. Install Flutter first.;
             exit 1; 
         }
 
-        success "⚙️  Flutter detected."
+        paint_message "✅ Flutter SDK Found!" "${GREEN}"
+        newLine
     }
 
 
     check_vscode(){
+        paint_title "Checking if VS Code is installed..." "$CYAN"
+
         if ! command -v code >/dev/null 2>&1; then
-            info "'code' not in PATH — VS Code opening will be skipped."
+            paint_message "'code' not in PATH — VS Code opening will be skipped." "${YELLOW}"
+        else
+            paint_message "VS Code will automatically launch when project is created." "${GREEN}"
         fi
+        
     }
 
 
     check_android_sdk() {
-        echo "🔍 Checking for Android SDK..."
+        paint_title "🔍 Checking for Android SDK..." "${CYAN}"
 
         local sdk_dir=""
         local common_paths=(
@@ -68,7 +77,7 @@ if [[ -z "$CHECKERS_SH_SOURCED" ]]; then
             fi
         done
 
-        success "Using Android SDK at: $sdk_dir"
+        paint_message "Using Android SDK at: $sdk_dir" "${GREEN}"
         export ANDROID_SDK_ROOT="$sdk_dir"
     }
 fi

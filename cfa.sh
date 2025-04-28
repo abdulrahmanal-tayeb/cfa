@@ -1,10 +1,12 @@
 #!/bin/bash
 
+source ./core/painter.sh
 source ./core/checkers.sh
 source ./core/preferences.sh
 source ./core/utilities.sh
 
 set -euo pipefail
+
 
 # shellcheck disable=SC2120
 create_flutter_application(){
@@ -13,6 +15,7 @@ create_flutter_application(){
 
     # If the user provided an input, use it. Otherwise, keep the default $OUTPUT_DIR
     OUTPUT_DIR="${USER_INPUT:-$OUTPUT_DIR}"
+    export PROJECT_PATH="$OUTPUT_DIR/$PROJECT_NAME"
 
     # Check if the directory exists, if not, create it
     if [[ ! -d "$OUTPUT_DIR" ]]; then
@@ -32,7 +35,6 @@ create_flutter_application(){
 
     success "Flutter project created at ${GREEN}$OUTPUT_DIR${RESET}"
 
-    return 0
 }
 
 finalize(){
@@ -47,6 +49,7 @@ finalize(){
     return 0
 }
 
+paint_intro
 check_dependencies
 
 take_preferences

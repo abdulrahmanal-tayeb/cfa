@@ -28,7 +28,7 @@ if [[ -z "$UTILITIES_SH_SOURCED" ]]; then
 
     warning() { echo -e "${YELLOW}⚠️  $1${RESET}"; }
     success() { echo -e "${GREEN}✅ $1${RESET}"; }
-    info() { echo -e "${CYAN}⚙️  $1${RESET}"; }
+    info() { echo -e "${CYAN}$1${RESET}"; }
     prompt() { echo -e "${MAGENTA}❓ $1${RESET}"; }
     newLine() { info "+---------------------------------------------------------+"; }
 

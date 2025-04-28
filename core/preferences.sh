@@ -26,8 +26,8 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
     update_files(){
         update_project_android_manifest
         update_project_build_gradle
-        update_project_gradle_properties
         update_project_grandle_wrapper
+        update_project_gradle_properties
         update_project_info_plist
     }
 
@@ -81,7 +81,7 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
     select_project_platforms(){
         # 5) Platforms
         echo; PLATTS=(android ios web linux macos windows)
-        echo "Select platforms (space-separated numbers, e.g. 1 2):"
+        info "Select platforms (space-separated numbers, e.g. 1 2):"
         for i in "${!PLATTS[@]}"; do printf "  %2d) %s\n" $((i+1)) "${PLATTS[i]}"; done
         read -rp "Platforms [1 2]: " -a IDX
 
@@ -97,14 +97,12 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
     }
 
     select_project_native_languages(){
-
         read -rp "Android language [kotlin]: " ANDROID_LANG
         export ANDROID_LANG=${ANDROID_LANG:-kotlin}
 
         # Deperecated (Always Swift)
         # read -rp "IOS language [swift]: " IOS_LANG
         # export IOS_LANG=${IOS_LANG:-swift}
-
     }
 
     select_project_ndk() {
@@ -137,7 +135,7 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
 
         # Set the selected NDK version
         export SELECTED_NDK="${NDK_VERSIONS[selection - 1]##*/}"
-        info "→ Selected NDK: $SELECTED_NDK"
+        paint_message "Selected NDK: $SELECTED_NDK" "${GREEN}"
     }
 
     select_project_jdk() {
@@ -181,7 +179,7 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
 
         # Set the selected JDK version
         export SELECTED_JDK="${JDK_VERSIONS[selection - 1]}"
-        info "→ Selected JDK: $SELECTED_JDK"
+        paint_message "Selected JDK: $SELECTED_JDK" "${GREEN}"
     }
 
     select_project_gradle() {
@@ -221,12 +219,13 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
 
         # Set the selected Gradle distribution
         export SELECTED_GRADLE="${DIST_LIST[gradle_selection - 1]}"
-        info "→ Selected Gradle: $SELECTED_GRADLE"
+        paint_message "Selected Gradle: $SELECTED_GRADLE" "${GREEN}"
     }
 
     # Function to update gradle.properties file
     update_project_gradle_properties() {
-        GP="$PROJECT_NAME/android/gradle.properties"
+        GP="$PROJECT_PATH/android/gradle.properties"
+
         if [[ -f $GP ]]; then
             # Update NDK version in gradle.properties
             update_property "$GP" "android.ndkVersion" "$SELECTED_NDK"
@@ -234,24 +233,24 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
             # Update JDK home in gradle.properties
             update_property "$GP" "org.gradle.java.home" "$SELECTED_JDK"
             
-            echo "✅ gradle.properties updated."
+            paint_message "✅ gradle.properties updated." "${GREEN}"
         else
-            echo "⚠️  Missing gradle.properties; set NDK/JDK manually."
+            paint_message "Missing gradle.properties; set NDK/JDK manually." "${YELLOW}"
         fi
     }
 
     # Function to update gradle-wrapper.properties file
     update_project_grandle_wrapper() {
-        GW="$PROJECT_NAME/android/gradle/wrapper/gradle-wrapper.properties"
+        GW="$PROJECT_PATH/android/gradle/wrapper/gradle-wrapper.properties"
         if [[ -f $GW ]]; then
             sed -i "s|^distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/$SELECTED_GRADLE.zip|" "$GW"
-            echo "✅ gradle-wrapper.properties set to $SELECTED_GRADLE."
+            paint_message "✅ gradle-wrapper.properties set to $SELECTED_GRADLE." "${GREEN}"
         fi
     }
 
     # Function to update build.gradle file
     update_project_build_gradle() {
-        BG="$PROJECT_NAME/android/app/build.gradle"
+        BG="$PROJECT_PATH/android/app/build.gradle"
         if [[ -f $BG ]]; then
             # Parse major version from JDK basename
             JV=$(basename "$SELECTED_JDK")
@@ -270,22 +269,22 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
                 sed -i "/defaultConfig {/a \        ndkVersion \"$SELECTED_NDK\"" "$BG"
             fi
 
-            echo "✅ build.gradle updated (Java $JVNUM, NDK)."
+            paint_message "✅ build.gradle updated (Java $JVNUM, NDK)." "${GREEN}"
         fi
     }
 
     # Function to update AndroidManifest.xml file
     update_project_android_manifest() {
-        AM="$PROJECT_NAME/android/app/src/main/AndroidManifest.xml"
+        AM="$PROJECT_PATH/android/app/src/main/AndroidManifest.xml"
         if [[ -f $AM ]]; then
             sed -i "s|\(android:label=\)\"[^\"]*\"|\1\"$DISPLAY_NAME\"|" "$AM"
-            echo "✅ Android label → $DISPLAY_NAME."
+            paint_message "✅ Android label → $DISPLAY_NAME." "${GREEN}"
         fi
     }
 
     # Function to update Info.plist file
     update_project_info_plist() {
-        PL="$PROJECT_NAME/ios/Runner/Info.plist"
+        PL="$PROJECT_PATH/ios/Runner/Info.plist"
         if [[ -f $PL ]]; then
             if grep -q '<key>CFBundleDisplayName</key>' "$PL"; then
                 sed -i "/<key>CFBundleDisplayName<\/key>/{n; s|<string>.*|<string>$DISPLAY_NAME</string>|}" "$PL"
@@ -294,7 +293,7 @@ if [[ -z "$PREFERENCES_SH_SOURCED" ]]; then
                 <key>CFBundleDisplayName<\/key>\\
                 <string>$DISPLAY_NAME<\/string>" "$PL"
             fi
-            echo "✅ iOS Display Name → $DISPLAY_NAME."
+            paint_message "✅ iOS Display Name → $DISPLAY_NAME." "${GREEN}"
         fi
     }
 fi
